@@ -12,8 +12,8 @@ def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataF
         WSDL_URL,
         site_id,
         SNOW_WATER_EQUIV,
-        start="1980-01-01",
-        end=datetime.today().strftime("%Y-%m-%d"),
+        start=start_date,
+        end=end_date,
     )
 
     values_df = pd.DataFrame.from_dict(snow_data["values"])

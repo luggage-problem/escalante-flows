@@ -2,6 +2,7 @@
 import ulmo
 import pandas as pd
 import numpy as np
+import matplotlib
 from datetime import datetime
 
 WSDL_URL = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL'
@@ -21,3 +22,12 @@ def fetch_snotel_to_df():
     values_df = values_df[values_df['quality_control_level_code'] == '1']
 
     return values_df
+
+def fetch_flows_to_df():
+    flow_data = ulmo.usgs.nwis.get_site_data('09337500', service='daily', start='1980-01-01', end=datetime.today().strftime('%Y-%m-%d'))
+    flow_data = flow_data['00060:00003']['values']
+    values_df = pd.DataFrame.from_dict(flow_data)
+
+    return values_df
+
+print(fetch_flows_to_df().head())

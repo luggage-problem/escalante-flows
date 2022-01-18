@@ -25,9 +25,7 @@ def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataF
     return values_df
 
 
-def fetch_river_flows(
-    river_id: int, start_date: str, end_date: str, interval: str = "daily"
-) -> pd.DataFrame:
+def fetch_river_flows(river_id: str, start_date: str, end_date: str, interval: str = "daily") -> pd.DataFrame:
     flow_data = ulmo.usgs.nwis.get_site_data(
         river_id,
         service=interval,
@@ -36,6 +34,8 @@ def fetch_river_flows(
     )
     ####???? parsing???? ###
     flow_data = flow_data["00060:00003"]["values"]
-    values_df = pd.DataFrame.from_dict(flow_data)
-
+    values_df = pd.DataFrame.from_dict(flow_data) # todo: handle replacing null values and such
+    values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
+    values_df['value'] = values_df['value'].astype(float)
+    values_df = values_df.set_index("datetime")
     return values_df

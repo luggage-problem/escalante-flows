@@ -13,6 +13,7 @@ def get_all_snotel_sites():
     table['site_id'] = 'SNOTEL:' + re.findall('\((.*?)\)', str(table['site_name']))[0] + '_' + table['state'] + '_SNTL'
     return table
 
+
 def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataFrame:
     WSDL_URL = "https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL"
     SNOW_WATER_EQUIV = "SNOTEL:WTEQ_D"
@@ -33,7 +34,13 @@ def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataF
     return values_df
 
 
-def fetch_flows_to_df(river_id: str, start_date: str, end_date: str, interval: str = "daily", estimation_drop: bool = False) -> pd.DataFrame:
+def fetch_flows_to_df(
+    river_id: str,
+    start_date: str,
+    end_date: str,
+    interval: str = "daily",
+    estimation_drop: bool = False,
+) -> pd.DataFrame:
     flow_data = ulmo.usgs.nwis.get_site_data(
         river_id,
         service=interval,
@@ -43,14 +50,14 @@ def fetch_flows_to_df(river_id: str, start_date: str, end_date: str, interval: s
     flow_data = flow_data["00060:00003"]["values"] # 00060:00003 is flow data identifier (probably)
     values_df = pd.DataFrame.from_dict(flow_data) # todo: handle replacing null values and such
     values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
-    values_df['value'] = values_df['value'].astype(float)
-    
+    values_df["value"] = values_df["value"].astype(float)
+
     if estimation_drop == True:
-        # Data-value qualification codes included in this output: 
-        #     A  Approved for publication -- Processing and review completed.  
-        #     P  Provisional data subject to revision.  
-        #     e  Value has been estimated.  
-        values_df['value'] = values_df[values_df['qualifiers'] =='A']
+        # Data-value qualification codes included in this output:
+        #     A  Approved for publication -- Processing and review completed.
+        #     P  Provisional data subject to revision.
+        #     e  Value has been estimated.
+        values_df["value"] = values_df[values_df["qualifiers"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
 

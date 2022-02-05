@@ -1,4 +1,6 @@
-river_gauge = "09337500"
+db_uri = 'local.sqlite'
+
+river_gauge = '09337500'
 
 snotel_sites = {
     "WIDTSOE_3": "SNOTEL:865_UT_SNTL",

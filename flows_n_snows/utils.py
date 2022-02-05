@@ -4,6 +4,14 @@ import numpy as np
 import matplotlib
 from datetime import datetime
 import pdb
+import re
+
+def get_all_snotel_sites():
+    #   ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
+    SNOTEL_LIST_URL = "https://wcc.sc.egov.usda.gov/nwcc/yearcount?network=sntl&state=&counttype=statelist"
+    table = pd.read_html(SNOTEL_LIST_URL)[1]
+    table['site_id'] = 'SNOTEL:' + re.findall('\((.*?)\)', str(table['site_name']))[0] + '_' + table['state'] + '_SNTL'
+    return table
 
 
 def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataFrame:
@@ -26,7 +34,7 @@ def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataF
     return values_df
 
 
-def fetch_river_flows(
+def fetch_flows_to_df(
     river_id: str,
     start_date: str,
     end_date: str,
@@ -39,11 +47,8 @@ def fetch_river_flows(
         start=start_date,
         end=end_date,
     )
-    ####???? parsing???? ###
-    flow_data = flow_data["00060:00003"]["values"]
-    values_df = pd.DataFrame.from_dict(
-        flow_data
-    )  # todo: handle replacing null values and such
+    flow_data = flow_data["00060:00003"]["values"] # 00060:00003 is flow data identifier (probably)
+    values_df = pd.DataFrame.from_dict(flow_data) # todo: handle replacing null values and such
     values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
     values_df["value"] = values_df["value"].astype(float)
 
@@ -55,3 +60,4 @@ def fetch_river_flows(
         values_df["value"] = values_df[values_df["qualifiers"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
+

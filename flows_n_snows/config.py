@@ -1,3 +1,5 @@
+db_uri = 'local.sqlite'
+
 river_gauge = '09337500'
 
 snotel_sites = {

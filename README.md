@@ -2,12 +2,12 @@
 
 
 ## TODO:
-- use prefect or cronjob to schedule new data retrieval. 
+- use prefect or cronjob to schedule new data retrieval.
 - data storage? [sqlite on droplet, file w/ append util]
 
 ## Design Goals:
 - Setup CI with Github actions
-- mypy, precommit, black etc. 
+- mypy, precommit, black etc.
 - codecov
 
 
@@ -21,6 +21,3 @@
  - historical usgs gauge data data for escalante (09337500) + more in basin?
  - snotel SWE historical data
  - watershed data?
- 
- 
-

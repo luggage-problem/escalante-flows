@@ -1,5 +1,6 @@
 import re
 
+import config
 import numpy as np
 import pandas as pd
 import ulmo
@@ -29,7 +30,7 @@ def fetch_snotel_to_df(site_id: str, start_date: str, end_date: str) -> pd.DataF
     )
 
     values_df = pd.DataFrame.from_dict(snow_data["values"])
-    values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
+    values_df["datetime"] = pd.to_datetime(values_df["datetime"]).dt.strftime("%Y-%m-%d:%H:%M:%S")
     values_df = values_df.set_index("datetime")
     values_df["value"] = pd.to_numeric(values_df["value"]).replace(-9999, np.nan)
     values_df = values_df[values_df["quality_control_level_code"] == "1"]
@@ -54,7 +55,7 @@ def fetch_flows_to_df(
     flow_data = flow_data["00060:00003"]["values"]
     # todo: handle replacing null values and such
     values_df = pd.DataFrame.from_dict(flow_data)
-    values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
+    values_df["datetime"] = pd.to_datetime(values_df["datetime"]).dt.strftime("%Y-%m-%d:%H:%M:%S")
     values_df["value"] = values_df["value"].astype(float)
 
     if estimation_drop is True:
@@ -65,3 +66,6 @@ def fetch_flows_to_df(
         values_df["value"] = values_df[values_df["qualifiers"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
+
+
+df = fetch_flows_to_df(config.river_gauge, start_date="2000-01-01", end_date="2000-01-01")

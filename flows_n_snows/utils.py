@@ -1,16 +1,19 @@
-import ulmo
-import pandas as pd
-import numpy as np
-import matplotlib
-from datetime import datetime
-import pdb
 import re
+
+import numpy as np
+import pandas as pd
+import ulmo
+
 
 def get_all_snotel_sites():
     #   ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
-    SNOTEL_LIST_URL = "https://wcc.sc.egov.usda.gov/nwcc/yearcount?network=sntl&state=&counttype=statelist"
+    SNOTEL_LIST_URL = (
+        "https://wcc.sc.egov.usda.gov/nwcc/yearcount?network=sntl&state=&counttype=statelist"
+    )
     table = pd.read_html(SNOTEL_LIST_URL)[1]
-    table['site_id'] = 'SNOTEL:' + re.findall('\((.*?)\)', str(table['site_name']))[0] + '_' + table['state'] + '_SNTL'
+    table_state = table["state"]
+    site_name = re.findall("\((.*?)\)", str(table["site_name"]))[0]  # noqa W605
+    table["site_id"] = f"SNOTEL:{site_name}_{table_state}_SNTL"
     return table
 
 
@@ -47,12 +50,14 @@ def fetch_flows_to_df(
         start=start_date,
         end=end_date,
     )
-    flow_data = flow_data["00060:00003"]["values"] # 00060:00003 is flow data identifier (probably)
-    values_df = pd.DataFrame.from_dict(flow_data) # todo: handle replacing null values and such
+    # 00060:00003 is flow data identifier (probably)
+    flow_data = flow_data["00060:00003"]["values"]
+    # todo: handle replacing null values and such
+    values_df = pd.DataFrame.from_dict(flow_data)
     values_df["datetime"] = pd.to_datetime(values_df["datetime"], utc=True)
     values_df["value"] = values_df["value"].astype(float)
 
-    if estimation_drop == True:
+    if estimation_drop is True:
         # Data-value qualification codes included in this output:
         #     A  Approved for publication -- Processing and review completed.
         #     P  Provisional data subject to revision.
@@ -60,4 +65,3 @@ def fetch_flows_to_df(
         values_df["value"] = values_df[values_df["qualifiers"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
-

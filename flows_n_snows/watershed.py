@@ -51,7 +51,5 @@ def clip_catchment_to_grid(grid, catch):
     return clipped_catch
 
 
-
-
 # TODO:
 # catchment area to geopandas?

@@ -1,9 +1,7 @@
 from typing import Optional
 
-import pysheds
-import os
-from pysheds.grid import Grid
 import xarray as xr
+from pysheds.grid import Grid
 
 
 def retrieve_dem_and_grid(

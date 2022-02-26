@@ -1,6 +1,7 @@
-import pytest
-from flows_n_snows import watershed
 import pysheds
+import pytest
+
+from flows_n_snows import watershed
 
 
 def test_retrieve_dem_and_grid():

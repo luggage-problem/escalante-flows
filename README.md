@@ -5,6 +5,11 @@
 - use prefect or cronjob to schedule new data retrieval. 
 - data storage? [sqlite on droplet, file w/ append util]
 
+## Design Goals:
+- Setup CI with Github actions
+- mypy, precommit, black etc. 
+- codecov
+
 
 ## Goals:
  - Determine the best 5 day interval to do the float in question (meaning of best tbd)
@@ -18,7 +23,4 @@
  - watershed data?
  
  
-## SDK's:
- - https://github.com/USGS-python/dataretrieval ?
- - https://mattbartos.com/pysheds/flow-directions.html
 

@@ -2,7 +2,7 @@
 
 
 ## TODO:
-- use prefect or cronjob to schedule new data retrieval.
+- use prefect or cronjob to schedule new data retrieval. (Airflow?)
 - data storage? [sqlite on droplet, file w/ append util]
 
 ## Design Goals:

@@ -4,17 +4,20 @@ import flows_n_snows.config
 import numpy as np
 import pandas as pd
 import ulmo
+import xarray as xr
+
 
 
 def get_all_snotel_sites() -> pd.DataFrame:
     """Return dataframe containing all snotel site ids
+    Header is: ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
+
 
     Returns
     -------
     Pandas DataFrame
         Dataframe containing snotel site ids
     """
-    #   ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
     SNOTEL_LIST_URL = (
         "https://wcc.sc.egov.usda.gov/nwcc/yearcount?network=sntl&state=&counttype=statelist"
     )
@@ -98,18 +101,51 @@ def fetch_flows_to_df(
     flow_data = flow_data["00060:00003"]["values"]
     # todo: handle replacing null values and such
     values_df = pd.DataFrame.from_dict(flow_data)
+    # rename
+    # import pdb
+    # pdb.set_trace()
+    values_df = values_df.rename({"value": "flow_rate", "qualifiers": "flags"}, axis='columns')
     values_df["datetime"] = pd.to_datetime(values_df["datetime"]).dt.strftime("%Y-%m-%d:%H:%M:%S")
-    values_df["value"] = values_df["value"].astype(float)
+    values_df["flow_rate"] = values_df["flow_rate"].astype(float)
 
     if estimation_drop is True:
         # Data-value qualification codes included in this output:
         #     A  Approved for publication -- Processing and review completed.
         #     P  Provisional data subject to revision.
         #     e  Value has been estimated.
-        values_df["value"] = values_df[values_df["qualifiers"] == "A"]
+        values_df["flow_rate"] = values_df[values_df["flags"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
 
 
-# df = fetch_flows_to_df(config.river_gauge, start_date="2000-01-01", end_date="2000-01-01")
+def query_zarr_dates(path: str) -> slice:
+    xdf = read_zarr_store(path)
+    min_date = xdf.datetime.min()
+    max_date = xdf.datetime.max()
+    return slice(min_date, max_date)
 
+
+def dataframe_to_xarray(df: pd.DataFrame) -> xr.Dataset:
+    return df.to_xarray()
+
+
+def dataframe_to_zarr(df: pd.DataFrame, path: str, mode: str = 'w-', append_dim=None):
+    ds = dataframe_to_xarray(df)
+    ds.to_zarr(path, consolidated=True, mode=mode, append_dim=append_dim)
+
+
+def read_zarr_store(path):
+    return xr.open_zarr(path, consolidated=True)
+
+
+# def append_to_zarr_store(path: str, xdf: xr.Dataset):
+
+
+# df = fetch_flows_to_df(config.river_gauge, start_date="1900-01-01", end_date="2023-01-01")
+# # df2 = fetch_flows_to_df(config.river_gauge, start_date="2000-01-02", end_date="2000-01-02")
+
+# path = './flow_zarr.zarr'
+# dataframe_to_zarr(df, path)
+# dataframe_to_zarr(df2, path, mode='a', append_dim='datetime')
+
+# xdf = read_zarr_store(path)

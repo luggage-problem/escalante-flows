@@ -1,11 +1,11 @@
 import re
 
+import flows_n_snows.config
 import numpy as np
 import pandas as pd
 import ulmo
 import xarray as xr
 
-from flows_n_snows import config
 
 
 def get_all_snotel_sites() -> pd.DataFrame:
@@ -23,7 +23,7 @@ def get_all_snotel_sites() -> pd.DataFrame:
     )
     table = pd.read_html(SNOTEL_LIST_URL)[1]
     table_state = table["state"]
-    site_name = re.findall("\((.*?)\)", str(table["site_name"]))[0]  # noqa W605
+    site_name = re.findall(r"\((.*?)\)", str(table["site_name"]))[0]  # noqa W605
     table["site_id"] = f"SNOTEL:{site_name}_{table_state}_SNTL"
     return table
 

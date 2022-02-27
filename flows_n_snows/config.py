@@ -1,8 +1,5 @@
 db_uri = "local.sqlite"
 
-flow_store_name = './river_flow.zarr'
-snow_store_name = './snow.zarr'
-
 river_gauge = "09337500"
 
 snotel_sites = {

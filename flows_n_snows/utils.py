@@ -9,16 +9,16 @@ import xarray as xr
 from flows_n_snows import config
 
 
+
 def get_all_snotel_sites() -> pd.DataFrame:
     """Return dataframe containing all snotel site ids
-    Header is: ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
-
 
     Returns
     -------
     Pandas DataFrame
         Dataframe containing snotel site ids
     """
+    #   ntwk, state, site_name, ts, start, lat, lon, elev, county, huc, site_id
     SNOTEL_LIST_URL = (
         "https://wcc.sc.egov.usda.gov/nwcc/yearcount?network=sntl&state=&counttype=statelist"
     )
@@ -102,19 +102,18 @@ def fetch_flows_to_df(
     flow_data = flow_data["00060:00003"]["values"]
     # todo: handle replacing null values and such
     values_df = pd.DataFrame.from_dict(flow_data)
-    # rename
-    # import pdb
-    # pdb.set_trace()
+
     values_df = values_df.rename({"value": "flow_rate", "qualifiers": "flags"}, axis='columns')
     values_df["datetime"] = pd.to_datetime(values_df["datetime"]).dt.strftime("%Y-%m-%d")
     values_df["flow_rate"] = values_df["flow_rate"].astype(float)
+
 
     if estimation_drop is True:
         # Data-value qualification codes included in this output:
         #     A  Approved for publication -- Processing and review completed.
         #     P  Provisional data subject to revision.
         #     e  Value has been estimated.
-        values_df["flow_rate"] = values_df[values_df["flags"] == "A"]
+        values_df["value"] = values_df[values_df["qualifiers"] == "A"]
     values_df = values_df.set_index("datetime")
     return values_df
 
@@ -158,4 +157,4 @@ df2 = fetch_flows_to_df(config.river_gauge, start_date="2022-02-27", end_date="2
 # dataframe_to_zarr(df, path)
 # dataframe_to_zarr(df2, path, mode='a', append_dim='datetime')
 
-# xdf = read_zarr_store(path)
+
